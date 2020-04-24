@@ -35,17 +35,31 @@ For the following steps, reference activity 14, 18-PWA/01-Activities/14-Stu_Note
 <link rel="manifest" href="manifest.webmanifest" />
 ```
 
-4. Test your manifest is being read by starting your app and opening up the Application tab in the browser. 
+4. Test your manifest is being read by starting your app and opening up the Application tab in the browser.
 
-    **HINT: Because we have used PORT 3000 for several of our in class apps, your first step should be to clear all application data.**
+   **HINT: Because we have used PORT 3000 for several of our in class apps, your first step should be to clear all application data.**
 
 ![Clear Site Data](images/clear-site-data.png)
 
-If you cleared your site data, simply reload the page and visit the manifest section under the Application tab. You should see a few warnings. 
+If you cleared your site data, simply reload the page and visit the manifest section under the Application tab. You should see a few warnings.
 
 5. Commit
 
 ## Add Offline Storage with IndexedDB
 
-1. Copy the db.js file from 17-NoSQL/01-Activities/26-Stu-Mini-Project/Solved/public into your budget app public folder. Commit.
+1. Copy the db.js file from 17-NoSQL/01-Activities/26-Stu-Mini-Project/Solved/public into your budget app public folder.
+2. Link your db.js file in your index.html
 
+```html
+<script src="db.js"></script>
+```
+
+3. Test that the app works offline by setting your Network tab to Offline and adding a transaction. You should see the http call fail, but the transaction still appears on the screen.
+
+![Offline Failed http Call](images/offline-http-call.png)
+
+Additionally, you should see your transaction stored in the IndexedDB under Application -> Storage -> IndexedDB -> budget - http://localhost:3000 -> pending
+
+![Offline Indexed DB](images/offline-indexeddb.png)
+
+4. Commit
