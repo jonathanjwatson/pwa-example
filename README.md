@@ -63,3 +63,131 @@ Additionally, you should see your transaction stored in the IndexedDB under Appl
 ![Offline Indexed DB](images/offline-indexeddb.png)
 
 4. Commit
+
+## Create the Service Worker
+
+1. Create a new `service-worker.js` file in your public folder.
+2. Modify the `service-worker.js` file to include the following:
+
+```js
+const FILES_TO_CACHE = [
+    "/",
+    "/index.html",
+    "db.js",
+    "favicon.ico",
+    "index.js",
+    "manifest.webmanifest",
+    "service-worker.js",
+    "/icons/icon-192x192.png",
+    "/icons/icon-512x512.png",
+  ];
+
+const CACHE_NAME = "static-cache-v1";
+const DATA_CACHE_NAME = "data-cache-v1";
+
+// install
+self.addEventListener("install", function (evt) {
+  evt.waitUntil(
+    caches
+      .open(CACHE_NAME)
+      .then((cache) => {
+        console.log("Your files were pre-cached successfully!");
+        cache
+          .addAll(FILES_TO_CACHE)
+          .then((result) => {
+            // debugger;
+            console.log("result of add all", result);
+          })
+          .catch((err) => {
+            // debugger;
+            console.log("Add all error: ", err);
+          });
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+  );
+
+  self.skipWaiting();
+});
+
+// activate
+self.addEventListener("activate", function (evt) {
+  evt.waitUntil(
+    caches.keys().then((keyList) => {
+      return Promise.all(
+        keyList.map((key) => {
+          if (key !== CACHE_NAME && key !== DATA_CACHE_NAME) {
+            console.log("Removing old cache data", key);
+            return caches.delete(key);
+          }
+        })
+      );
+    })
+  );
+
+  self.clients.claim();
+});
+
+// fetch
+self.addEventListener("fetch", function (evt) {
+  if (evt.request.url.includes("/api/")) {
+    evt.respondWith(
+      caches
+        .open(DATA_CACHE_NAME)
+        .then((cache) => {
+          return fetch(evt.request)
+            .then((response) => {
+              // If the response was good, clone it and store it in the cache.
+              if (response.status === 200) {
+                cache.put(evt.request.url, response.clone());
+              }
+
+              return response;
+            })
+            .catch((err) => {
+              // Network request failed, try to get it from the cache.
+              return cache.match(evt.request);
+            });
+        })
+        .catch((err) => console.log(err))
+    );
+
+    return;
+  }
+
+  evt.respondWith(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.match(evt.request).then((response) => {
+        return response || fetch(evt.request);
+      });
+    })
+  );
+});
+
+```
+
+3. Include the following script in your `index.html`
+
+```html
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("service-worker.js").then((reg) => {
+        console.log("We found your service worker file!", reg);
+      });
+    });
+  }
+</script>
+```
+
+4. Copy the favicon.ico file from this application's public directory.
+
+5. Confirm your application is reading your service worker by visiting the Application tab and clicking Service Workers.
+
+6. Refresh the page twice. Now, you should see both your static-cache and your data-cache in the Cache Storage section.
+
+![Static Cache](images/static-cache.png)
+![Data Cache](images/data-cache.png)
+
+7. Confirm you are able to access your application offline by selecting Service Workers, and checking the "Offline" checkbox. 
