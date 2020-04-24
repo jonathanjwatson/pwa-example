@@ -44,3 +44,8 @@ For the following steps, reference activity 14, 18-PWA/01-Activities/14-Stu_Note
 If you cleared your site data, simply reload the page and visit the manifest section under the Application tab. You should see a few warnings. 
 
 5. Commit
+
+## Add Offline Storage with IndexedDB
+
+1. Copy the db.js file from 17-NoSQL/01-Activities/26-Stu-Mini-Project/Solved/public into your budget app public folder. Commit.
+
